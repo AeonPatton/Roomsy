@@ -1,0 +1,54 @@
+import csv
+
+class BankAccount:
+    def __init__(self, name, balance=0):
+        self.name = name
+        self.balance = balance
+
+    def deposit(self, amount):
+        if amount > 0:
+            self.balance += amount
+            return True
+        return False
+
+    def withdraw(self, amount):
+        if 0 < amount <= self.balance:
+            self.balance -= amount
+            return True
+        return False
+
+    def transfer(self, other, amount):
+        if self.withdraw(amount):
+            other.deposit(amount)
+            return True
+        return False
+
+
+class BankSystem:
+    def __init__(self):
+        self.accounts = {}
+
+    def create_account(self, name, balance=0):
+        if name not in self.accounts:
+            self.accounts[name] = BankAccount(name, balance)
+            return True
+        return False
+
+    def save_to_csv(self, filename):
+        with open(filename, 'w', newline='') as f:
+            writer = csv.writer(f)
+            writer.writerow(['Name', 'Balance'])
+            for account in self.accounts.values():
+                writer.writerow([account.name, account.balance])
+
+    def load_from_csv(self, filename):
+        try:
+            with open(filename, 'r', newline='') as f:
+                reader = csv.reader(f)
+                next(reader)
+                for row in reader:
+                    name, balance = row
+                    self.accounts[name] = BankAccount(name, float(balance))
+            return True
+        except FileNotFoundError:
+            return False
