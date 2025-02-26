@@ -1,0 +1,40 @@
+import unittest
+from bank_system import BankSystem  
+
+
+class TestBankSystem(unittest.TestCase):
+    def setUp(self):
+        self.bank = BankSystem()
+
+    def test_create_account(self):
+        self.assertTrue(self.bank.create_account('Alice', 100))
+        self.assertFalse(self.bank.create_account('Alice', 200))
+
+    def test_deposit(self):
+        self.bank.create_account('Bob', 50)
+        self.assertTrue(self.bank.accounts['Bob'].deposit(50))
+        self.assertEqual(self.bank.accounts['Bob'].balance, 100)
+
+    def test_withdraw(self):
+        self.bank.create_account('Charlie', 200)
+        self.assertTrue(self.bank.accounts['Charlie'].withdraw(100))
+        self.assertEqual(self.bank.accounts['Charlie'].balance, 100)
+        self.assertFalse(self.bank.accounts['Charlie'].withdraw(300))
+
+    def test_transfer(self):
+        self.bank.create_account('David', 150)
+        self.bank.create_account('Eve', 50)
+        self.assertTrue(self.bank.accounts['David'].transfer(self.bank.accounts['Eve'], 50))
+        self.assertEqual(self.bank.accounts['David'].balance, 100)
+        self.assertEqual(self.bank.accounts['Eve'].balance, 100)
+
+    def test_save_and_load(self):
+        self.bank.create_account('Frank', 200)
+        self.bank.save_to_csv('test.csv')
+        new_bank = BankSystem()
+        self.assertTrue(new_bank.load_from_csv('test.csv'))
+        self.assertEqual(new_bank.accounts['Frank'].balance, 200)
+
+
+if __name__ == '__main__':
+    unittest.main()
